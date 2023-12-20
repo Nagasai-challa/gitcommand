@@ -1,0 +1,114 @@
+Clint.cs:
+________________
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.ServiceModel;
+
+namespace Client
+{
+    [ServiceContract]
+    interface IProblemSolver
+    {
+        [OperationContract]
+        int add(int a, int b);
+    }
+    interface IProblemSolverChannel : IProblemSolver, IClientChannel { }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var ch = new ChannelFactory<IProblemSolverChannel>("solverEP");
+            var channel = ch.CreateChannel();
+            Console.WriteLine(channel.add(10, 20));
+            Console.Read();
+        }
+    }
+}
+
+
+<client>
+ <endpoint name="solverEP"
+		contract="Client.IProblemSolver"
+		binding="netTcpRelayBinding"
+		address="sb://nagasai.servicebus.windows.net/solver"></endpoint>
+</client>
+
+
+_________________________________
+
+
+
+Service :
+________________
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.ServiceModel;
+
+namespace Service
+{
+    [ServiceContract]
+    interface IProblemSolver
+    {
+        [OperationContract]
+        int add(int a, int b);
+    }
+    class ProblemSolver : IProblemSolver
+    {
+        public int add(int a, int b)
+        {
+            return a + b;
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            ServiceHost sh = new ServiceHost(typeof(ProblemSolver));
+            sh.Open();
+            Console.WriteLine("Press ENTER to stop");
+            Console.Read();
+            sh.Close();
+        }
+    }
+}
+
+
+<services>
+ <service name="Service.ProblemSolver">
+  <endpoint contract="Service.IProblemSolver"
+			binding="netTcpRelayBinding"
+			address="sb://nagasai.servicebus.windows.net/solver"
+			behaviorConfiguration="SBTokenProvider" bindingConfiguration="ClientBinding">
+  </endpoint>
+ </service>
+</services>
+<bindings>
+ <netTcpRelayBinding>
+  <binding name="ClientBinding">
+	  <security relayClientAuthenticationType="None">
+
+	  </security>
+  </binding>
+ </netTcpRelayBinding>
+</bindings>
+<behaviors>
+ <endpointBehaviors>
+  <behavior name="SBTokenProvider">
+	  <transportClientEndpointBehavior>
+		  <tokenProvider>
+			  <sharedAccessSignature keyName="RootManageSharedAccessKey" key="khhJV/XicxN9RPUoQk8o3/m+rrA0Myjqj+ASbDxVaxw=">
+
+			  </sharedAccessSignature>
+		  </tokenProvider>
+	  </transportClientEndpointBehavior>
+  </behavior>
+ </endpointBehaviors>
+</behaviors>

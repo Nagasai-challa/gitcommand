@@ -1,0 +1,40 @@
+ sudo yum install git
+cd /opt
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.96/bin/apache-tomcat-8.5.96.zip
+unzip apache-tomcat-8.5.96.zip
+ls --> copy the path of tomcat
+
+mv apache-tomcat-8.5.96 tomcat	
+
+cd tomcat
+cd bin
+chmod -R u=rwx bin
+ln -s /opt/tomcat/bin/startup.sh /usr/local/bin/tomcatup
+ln -s /opt/tomcat/bin/shutdown.sh /usr/local/bin/tomcatdown
+find / context.xml
+			/opt/tomcat/webapps/host-manager/META-INF/context.xml
+			/opt/tomcat/webapps/manager/META-INF/context.xml
+			
+			change the above file i.e. comment the value tag
+			
+cd tomcat
+cd conf
+vi tomcat-users.xml
+		add tages here 
+		<role rolename="manager-gui"/>
+		<role rolename="manager-script"/>
+		<role rolename="manager-jmx"/>
+		<role rolename="manager-status"/>   
+		<user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+		<user username="deployer" password="deployer" roles="manager-script"/>
+		<user username="tomcat" password="s3cret" roles="manager-gui"/>
+
+install jdk17
+
+to start the tomcat 
+
+tomcatup
+
+
+			
+
